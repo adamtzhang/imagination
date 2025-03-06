@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Imaginative Capacity Framework</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -14,16 +15,48 @@
       padding: 20px;
       background: linear-gradient(135deg, #f5f5f5, #e0f7fa);
       color: #333;
+      line-height: 1.6;
     }
     .container {
       max-width: 1200px;
       margin: 0 auto;
     }
+    /* Header styling */
     h1 {
-      color: #2c3e50;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.5em;
+      color: #1a237e;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      margin: 30px 0;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    /* Navigation buttons styling */
+    .nav-buttons {
       text-align: center;
       margin-bottom: 30px;
     }
+
+    .research-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #1a237e, #3949ab);
+      color: white;
+      text-decoration: none;
+      border-radius: 25px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .research-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+      background: linear-gradient(135deg, #3949ab, #1a237e);
+    }
+
+    /* Level selector styling */
     .level-selector {
       display: flex;
       justify-content: center;
@@ -31,83 +64,112 @@
       margin-bottom: 30px;
       flex-wrap: wrap;
     }
+    
     .level-btn {
-      padding: 15px 25px;
-      border: none;
-      border-radius: 5px;
-      background-color: #34495e;
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #2c3e50, #34495e);
       color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
-      font-size: 16px;
-      min-width: 120px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
+
     .level-btn:hover {
-      background-color: #2980b9;
       transform: translateY(-2px);
+      background: linear-gradient(135deg, #34495e, #2c3e50);
+      box-shadow: 0 6px 8px rgba(0,0,0,0.2);
     }
+
     .level-btn.active {
-      background-color: #2980b9;
-      box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+      background: linear-gradient(135deg, #2980b9, #3498db);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
-    .level-description,
-    .overall-section,
-    .dimension-section {
-      background-color: white;
-      border-radius: 10px;
+
+    /* Section styling */
+    .level-description, .overall-section, .dimension-section {
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      background: white;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+
+    .level-description:hover, .overall-section:hover, .dimension-section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Typography */
+    .level-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8em;
+      color: #1a237e;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.2em;
+      color: #1a237e;
+      margin-bottom: 30px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .dimension-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8em;
+      color: #1a237e;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    /* Overall perspectives styling */
+    .overall-section .perspective {
+      background-color: #ffffff;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
+      border-radius: 8px;
+      border-left: 4px solid #3949ab;
     }
-    .level-title,
-    .section-title {
-      font-size: 1.4em;
-      color: #2c3e50;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    /* Overall perspectives (kept as is) */
-    .overall-section .perspective {
-      background-color: #f8f9fa;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-      border-left: 4px solid #64f5e1;
-    }
+
     .perspective-title {
-      font-weight: bold;
-      color: #2c3e50;
-      margin-bottom: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.2em;
+      font-weight: 600;
+      color: #333;
+      margin: 20px 0 10px 0;
     }
-    /* Dimensions container: two cards per row */
+
+    /* Dimensions styling */
     .dimensions-container {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
     }
+
     .dimension-section {
       width: calc(50% - 10px);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .dimension-section:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    }
-    .dimension-title {
-      font-size: 1.2em;
-      font-weight: bold;
-      color: #2c3e50;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #3498db;
-    }
+
     .dimension-definition {
-      margin-bottom: 15px;
-      font-style: italic;
-      color: #555;
+      margin: 15px 0 25px 0;
+      font-size: 1.1em;
+      color: #444;
+      line-height: 1.6;
+      padding: 15px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 8px;
     }
-    /* Accordion styles for each perspective */
+
+    /* Accordion styling */
     .accordion {
       margin-bottom: 10px;
       border: none;
@@ -115,47 +177,60 @@
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+
     .accordion-header {
-      padding: 10px;
+      padding: 12px 15px;
       cursor: pointer;
       font-weight: bold;
       user-select: none;
       transition: background-color 0.3s ease;
       border: none;
-      /* The background-color will be set via JS */
+      font-family: 'Montserrat', sans-serif;
     }
+
     .accordion-header:hover {
       filter: brightness(90%);
     }
+
     .accordion-content {
       max-height: 0;
       opacity: 0;
       overflow: hidden;
       transition: max-height 0.3s ease, opacity 0.3s ease;
-      padding: 0 10px;
+      padding: 0 15px;
+      font-size: 1.1em;
+      line-height: 1.6;
     }
+
     .accordion.active .accordion-content {
       max-height: 500px;
       opacity: 1;
-      padding: 10px;
+      padding: 15px;
     }
-    /* Fade effect for content on level change */
+
     #content {
       transition: opacity 0.5s ease;
     }
+
     @media (max-width: 768px) {
       .level-btn {
         flex: 1 1 calc(33.33% - 10px);
         font-size: 14px;
         padding: 10px 15px;
       }
+      .dimension-section {
+        width: 100%;
+      }
       .level-description,
       .overall-section,
       .dimension-section {
-        padding: 15px;
+        padding: 20px;
       }
-      .dimension-section {
-        width: 100%;
+      .section-title {
+        font-size: 1.8em;
+      }
+      .dimension-title {
+        font-size: 1.6em;
       }
     }
   </style>
@@ -163,6 +238,9 @@
 <body>
   <div class="container">
     <h1>Imagination Framework</h1>
+    <div class="nav-buttons">
+      <a href="research.html" class="research-btn">Our Research</a>
+    </div>
     <div class="level-selector" id="levelSelector">
       <!-- Level buttons will be created by JavaScript -->
     </div>
@@ -479,9 +557,7 @@
             const header = document.createElement("div");
             header.className = "accordion-header";
             header.textContent = perspectiveName;
-            // Set header background to our mapping (if available)
             header.style.backgroundColor = perspectiveColors[perspectiveName] || "#eee";
-            // Remove border to be boardless
             header.style.border = "none";
             const accContent = document.createElement("div");
             accContent.className = "accordion-content";
