@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Imaginative Capacity Framework</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #f5f5f5, #e0f7fa);
+      color: #333;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .level-selector {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .level-btn {
+      padding: 15px 25px;
+      border: none;
+      border-radius: 5px;
+      background-color: #34495e;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 16px;
+      min-width: 120px;
+    }
+    .level-btn:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+    .level-btn.active {
+      background-color: #2980b9;
+      box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+    }
+    .level-description,
+    .overall-section,
+    .dimension-section {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+    .level-title,
+    .section-title {
+      font-size: 1.4em;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    /* Overall perspectives (kept as is) */
+    .overall-section .perspective {
+      background-color: #f8f9fa;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border-left: 4px solid #64f5e1;
+    }
+    .perspective-title {
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    /* Dimensions container: two cards per row */
+    .dimensions-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .dimension-section {
+      width: calc(50% - 10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .dimension-section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    .dimension-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3498db;
+    }
+    .dimension-definition {
+      margin-bottom: 15px;
+      font-style: italic;
+      color: #555;
+    }
+    /* Accordion styles for each perspective */
+    .accordion {
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .accordion-header {
+      padding: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      user-select: none;
+      transition: background-color 0.3s ease;
+      border: none;
+      /* The background-color will be set via JS */
+    }
+    .accordion-header:hover {
+      filter: brightness(90%);
+    }
+    .accordion-content {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      padding: 0 10px;
+    }
+    .accordion.active .accordion-content {
+      max-height: 500px;
+      opacity: 1;
+      padding: 10px;
+    }
+    /* Fade effect for content on level change */
+    #content {
+      transition: opacity 0.5s ease;
+    }
+    @media (max-width: 768px) {
+      .level-btn {
+        flex: 1 1 calc(33.33% - 10px);
+        font-size: 14px;
+        padding: 10px 15px;
+      }
+      .level-description,
+      .overall-section,
+      .dimension-section {
+        padding: 15px;
+      }
+      .dimension-section {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Imagination Framework</h1>
+    <div class="level-selector" id="levelSelector">
+      <!-- Level buttons will be created by JavaScript -->
+    </div>
+    <div id="content">
+      <!-- Dynamic content loads here -->
+    </div>
+  </div>
+
+  <script>
+    // Mapping for unique colors per dimension
+    const dimensionColors = {
+      "Reproductive Imagination": "#d6eaf8",
+      "Productive Imagination": "#d5f5e3",
+      "Emotional Intensity": "#fcf3cf",
+      "Fluency": "#e8daef",
+      "Goal-Directedness": "#fdebd0",
+      "Complexity": "#d1f2eb"
+    };
+
+    // Mapping for perspective header colors
+    const perspectiveColors = {
+      "Teacher's View": "#AEDFF7",
+      "Student's View": "#C6F1C6",
+      "Parent's View": "#FFDAB9",
+      "Donor's View": "#E0BBE4"
+    };
+
+    // Data structure with full data
+    const frameworkData = {
+      levelDescriptions: {
+        1: "Basic – Mostly reproduces familiar ideas; low emotional engagement; requires help to imagine (low cognitive efficiency); not goal-directed; very simple imaginative content.",
+        2: "Emerging – Begins to add original twists to known ideas; mild emotional engagement; some support still needed (improving cognitive efficiency); occasionally pursues simple imaginative goals when prompted; ideas remain fairly simple with slight increases in complexity.",
+        3: "Developing – Mix of reproducing known concepts and generating new ideas; moderate emotional engagement; imaginative thinking is fairly efficient (needs only occasional guidance); sometimes self-directed in creative tasks; imaginative ideas have moderate complexity and detail.",
+        4: "Advanced – Mostly generates original ideas; high emotional enthusiasm; imaginative thinking is efficient and fluid; frequently sets and pursues imaginative goals independently; creative output is complex and nuanced.",
+        5: "Exceptional – Consistently produces highly original ideas; intense emotional investment; imaginative thinking is very efficient and self-driven; strongly goal-directed by imaginative vision; creations are extremely complex and multi-layered."
+      },
+      overall: {
+        "Teacher's Perspective": {
+          1: "Observes minimal imagination: the student copies examples or peers and shows little enthusiasm for imaginative tasks.",
+          2: "Notices occasional originality (the student adds small twists to copied ideas) but still often needs prompts. The student shows slightly more enthusiasm during creative tasks, though generally sticks to familiar patterns.",
+          3: "Observes a student often contributing original ideas while still drawing on familiar examples. The student is engaged in creative tasks and can complete imaginative projects with minimal prompting.",
+          4: "Witnesses a highly creative student who regularly offers unique ideas and solutions. The student is deeply engaged in imaginative tasks, works independently on creative projects, and produces detailed, original work beyond the usual expectations.",
+          5: "Encounters an exceptionally imaginative student whose work is visionary and original. The student is passionately involved in creative pursuits, often leading their own ambitious projects and delivering intricate, sophisticated results that surpass expectations."
+        },
+        "Student's Perspective": {
+          1: "Feels unsure or unexcited about creating new ideas; tends to stick to known stories or play patterns rather than inventing new ones.",
+          2: "Sometimes excited to put their own spin on play or artwork, but still mostly uses familiar themes. Enjoys imagination in spurts, but feels safer sticking to familiar ideas.",
+          3: "The student feels more confident and enjoys coming up with new ideas. They can invent stories or solutions (sometimes still drawing on familiar themes) and stay focused on creative tasks longer, finding them rewarding.",
+          4: "The student feels imagination flows easily and passionately. They eagerly take on creative challenges, often set personal goals (like writing a story or designing something), and develop rich, detailed creations.",
+          5: "The student experiences imagination as a core strength, generating a constant stream of innovative ideas and investing deep emotion in them. They set lofty creative goals (e.g., writing a book or inventing something) and pursue them fervently, creating complex, fully realized imaginative works."
+        },
+        "Parent's Perspective": {
+          1: "Notices the child mainly imitating others (replaying TV scenes, etc.) with short, simple pretend play and minimal emotional investment.",
+          2: "Sees the child occasionally create something new (e.g., a variation on a favorite story) but usually just replays familiar scenarios. The child shows some excitement in pretend play, though the play is still brief or straightforward.",
+          3: "Often finds the child immersed in imaginative play or creative projects. The child both imitates and invents, showing excitement and carrying stories or projects further with more detail than before.",
+          4: "Sees a child brimming with creativity and enthusiasm. The child invents games, stories, or artwork with little prompting and often becomes immersed in complex imaginative play for extended periods, even applying creativity to solve problems.",
+          5: "Observes a uniquely creative child who lives and breathes imagination. The child pours intense passion and focus into self-initiated projects (elaborate stories, inventions, etc.), consistently producing sophisticated, original creations that amaze others."
+        },
+        "Donor's Perspective": {
+          1: "Sees little creative output and views it as a starting point that underscores the need for support to spark the child’s imagination.",
+          2: "Sees early signs of creativity: the student can produce small original ideas with guidance. Encouraged by this progress, the donor notes the child’s imagination is still in an early stage of development.",
+          3: "Sees solid creative development: the student now produces original work with enthusiasm. This level demonstrates the program’s impact, as the student can tackle and complete moderately complex creative projects.",
+          4: "Recognizes a strong return on investment: the student exhibits high creativity and innovation. They initiate and complete creative projects independently with clear purpose and complexity, exemplifying the program’s success in fostering imagination.",
+          5: "Sees a flagship outcome: a student with visionary creativity and innovation. This student creates complex, original projects with clear purpose, embodying the transformative impact donors seek and serving as an inspiring example of success."
+        }
+      },
+      dimensions: {
+        "Reproductive Imagination": {
+          definition: "Reproductive Imagination is the ability to recall or reproduce mental content based on prior experiences or learned patterns. It does not create fundamentally new ideas; rather, it recombines existing images and knowledge into a coherent representation.",
+          perspectives: {
+            "Teacher's View": {
+              1: "Shows some difficulty in producing an exact copy of a memorized image or story with no variation; requires constant prompts and support to reproduce a known image or story.",
+              2: "Reproduces known content but have trouble recreate the details of the story or image in mind or on paper.",
+              3: "Reliably recalls key elements and begins to merge details from more than one source; reassembles familiar images from memory with slight recombination but do not generate new ideas beyond what they've experienced.",
+              4: "Consistently uses memory to repackage familiar narratives or images with noticeable personal modifications and accuracy; shows coherent recombination and a personal style, even though all elements are derived from past experiences.",
+              5: "Masterfully draws upon a wide range of recalled material, blending multiple sources into a sophisticated, highly detailed representation. The work is so well reassembled that it appears original, yet every element is rooted in known experiences."
+            },
+            "Student's View": {
+              1: "Feels uncomfortable recreating an image or story from memory;",
+              2: "I sometimes add one little detail, but I'm mostly copying what I remember.",
+              3: "I can combine parts of stories I've heard to make a slightly different version, but it still feels like I'm just mixing things I already know.",
+              4: "I feel comfortable retelling stories in my own way. I change the order or add details that I like, even though I'm using ideas I've learned before.",
+              5: "I can take many things I've seen and mix them together so well that it feels like my own version. I'm very confident in using everything I know to tell a complete story."
+            },
+            "Parent's View": {
+              1: "The child repeats things exactly as taught (like reenacting a scene exactly as seen on TV) with no personal touches.",
+              2: "The child introduces a tiny modification—perhaps a small addition to a familiar scene—but the play or drawing remains largely unchanged.",
+              3: "The child retells or draws a story that includes elements from several familiar sources. There is evidence of combining learned ideas, though the outcome is still very much based on what they have seen before.",
+              4: "The child often reinterprets familiar material with their own touches—altering character roles or settings—yet the foundation is still what they've seen or heard.",
+              5: "The child’s imaginative play or artwork is exceptionally detailed and thoughtfully reassembled. They continuously use memories to create a work that is both personal and elaborate."
+            },
+            "Donor's View": {
+              1: "Work is very basic and purely imitative; it shows only the ability to recall known images without any recombination.",
+              2: "Creative work shows only a hint of personal input; it remains predictable and very similar to the original learned material.",
+              3: "The work shows moderate recombination of learned content. While there is some personal flair, it remains clearly derivative—a remix of known ideas rather than something entirely new.",
+              4: "The output is rich in personal detail and style. It shows a sophisticated use of memory to create a coherent, personalized narrative, yet it is still fundamentally a recombination of existing ideas.",
+              5: "Creative outputs are exceptionally refined. Although they are built entirely on previous experiences, the work is so well executed and intricately combined that it stands as an outstanding example of imaginative recall and recombination, indicating a highly mature level of reproductive imagination."
+            }
+          }
+        },
+        "Productive Imagination": {
+          definition: "Productive (Creative) Imagination is the ability to generate new, original ideas and images beyond those one has directly experienced.",
+          perspectives: {
+            "Teacher's View": {
+              1: "Rarely generates original ideas; heavily relies on copying examples or known stories with no novel elements. Teacher often must prompt for any creative input.",
+              2: "Occasionally produces a simple new idea when encouraged, but generally sticks to safe, familiar concepts. Some minor creative sparks appear with support.",
+              3: "Sometimes comes up with original ideas independently; shows moderate creativity with occasional novel stories or solutions. Demonstrates creative thinking in some tasks without prompting.",
+              4: "Frequently contributes creative, novel ideas in class. Often goes beyond obvious solutions and adds imaginative twists to assignments or discussions.",
+              5: "Consistently generates highly original ideas and imaginative solutions. Almost always offers a unique perspective or story, often unexpected and inventive."
+            },
+            "Student's View": {
+              1: "Feels uncomfortable trying to create something new and prefers sticking to familiar ideas; might say they “can’t think of anything” unique.",
+              2: "Begins to experiment with small original twists when prompted, though still often falls back on well-known ideas.",
+              3: "Gains some confidence in imagination; at times excited to try new ideas or games. Can come up with a unique idea occasionally and feels proud when they do.",
+              4: "Feels confident being imaginative and enjoys inventing stories or unique solutions. Readily describes ideas that differ from the ordinary.",
+              5: "Highly self-assured in creativity. Loves to imagine, innovate, and experiment; actively seeks chances to create new stories or projects and takes pride in being very creative."
+            },
+            "Parent's View": {
+              1: "Does not initiate imaginative play or new ideas at home, repeating the same scenarios or following others’ lead rather than inventing.",
+              2: "Sometimes shows a spark of creativity (e.g., a small twist in a drawing or game), but overall play and projects remain tied to familiar themes.",
+              3: "Occasionally invents new games or story ideas during play; more imaginative ideas are emerging (though mixed with familiar ones).",
+              4: "Regularly engages in original play scenarios or creative projects at home. Family is often surprised by the child’s imaginative ideas or unusual solutions to problems.",
+              5: "Constantly creates unique games, stories, or art at home. Family sees the child as exceptionally imaginative, frequently amazed by the originality and depth of ideas."
+            },
+            "Donor's View": {
+              1: "Work shows little innovation or originality, blending in with typical peer output; indicates minimal creative development at this stage.",
+              2: "Outputs show one or two novel elements amid otherwise conventional work, reflecting tentative progress in creative thinking.",
+              3: "Work exhibits moderate creativity – for example, adding personal touches or unique angles to projects. Donors see growing imaginative capability compared to lower levels.",
+              4: "Creative outputs are notably original and inventive. The student’s work stands out for its imagination, showing the program’s strong impact on creative development.",
+              5: "Consistently produces exceptional creative work filled with innovation. Outputs strongly showcase advanced imagination, giving donors clear evidence of the program’s success in nurturing creativity."
+            }
+          }
+        },
+        "Emotional Intensity": {
+          definition: "Emotional Intensity is the degree of emotional engagement and expression a child exhibits during imaginative play or creative activities.",
+          perspectives: {
+            "Teacher's View": {
+              1: "Shows little to no emotional engagement during imaginative activities; reactions are flat or detached, indicating minimal interest.",
+              2: "Displays only mild emotion in imaginative tasks. Might smile or show curiosity in a favored story, but overall intensity is low and short-lived.",
+              3: "Often exhibits clear emotions (laughter, excitement, concern) when engaged in imagination. Reacts appropriately to scenarios, indicating moderate emotional involvement.",
+              4: "Shows strong emotional involvement in imaginative activities. Reacts vividly – using excited voices, facial expressions, or dramatic gestures – when role-playing or storytelling.",
+              5: "Displays intense emotional immersion in imaginative scenarios. Fully “lives” the pretend experience with passionate expression (joy, suspense, even pretend fear) while still distinguishing fantasy from reality."
+            },
+            "Student's View": {
+              1: "Does not feel strongly invested in pretend or fantasy play, treating it as superficial. Experiences almost no excitement or emotional response when imagining.",
+              2: "Enjoys imaginative play a little – may laugh or get slightly excited in fun scenarios – but feelings remain mostly low-key and fleeting.",
+              3: "Feels some of the emotions of pretend situations. For example, gets happy for a “hero” character or worried in a tense moment, making imaginative play more exciting.",
+              4: "Frequently experiences vivid emotions during imagination. Gets very excited, enthusiastic, or empathetic in pretend scenarios and enjoys the thrill of these feelings.",
+              5: "Feels deeply moved during imaginative play or creation. Emotions run high – the child might be truly jubilant at a happy ending or momentarily tense during a scary part – showing imagination is a powerful emotional experience."
+            },
+            "Parent's View": {
+              1: "Pretend play is largely emotionless; the child goes through scenarios without showing excitement, fear, or other feelings.",
+              2: "Shows small emotional responses in play (a brief laugh at something silly or slight excitement), yet generally stays calm; emotional involvement in make-believe is modest.",
+              3: "Expresses emotion at times during imaginative play – for instance, using a joyful or sad tone for characters. The child appears moderately invested emotionally in their make-believe stories.",
+              4: "Play at home is very animated and expressive. The child often acts out stories with great enthusiasm or drama, clearly feeling the emotions of the story (e.g., gasping in excitement, comforting a 'sad' stuffed animal).",
+              5: "Shows intense emotions in make-believe play. The child might act out scenes with dramatic excitement or concern, sometimes needing reassurance afterward. Their passion indicates a deep personal connection to their imaginative creations."
+            },
+            "Donor's View": {
+              1: "Appears minimally engaged during creative activities (e.g., monotone voice in a play, little enthusiasm), suggesting very limited emotional investment in imagination.",
+              2: "Shows some interest or enjoyment in imaginative activities (occasional smiles or animated moments), but emotional expressiveness is still subdued from an outside perspective.",
+              3: "Comes across as engaged and emotive in creative presentations or play. Donors might notice the child smiling, laughing, or showing concern at appropriate moments, reflecting a growing emotional connection to imaginative tasks.",
+              4: "Noticeably enthusiastic and expressive during program activities. The child’s lively, passionate storytelling or performance demonstrates high engagement, making a strong positive impression on observers (e.g., donors).",
+              5: "Delivers a highly emotive, captivating imaginative performance or product. The child pours genuine feeling into creative work, fully engaging the audience. Donors see a child profoundly connected to their imaginative experience, highlighting the program’s impact on confidence and emotional expression."
+            }
+          }
+        },
+        "Fluency": {
+          definition: "Cognitive Efficiency (Fluency) is the ease and fluency with which a child can generate ideas and sustain imaginative activity (idea flow and flexibility).",
+          perspectives: {
+            "Teacher's View": {
+              1: "Has trouble generating ideas in sequence. After one simple idea, the student often cannot continue without help – frequently falling silent or just repeating the same action due to no new ideas coming.",
+              2: "Generates a few ideas but slowly and with effort. Can continue an imaginative task a bit further with prompts, but tends to run out of steam after a short while.",
+              3: "Produces a moderate flow of ideas. Able to carry a story or creative task through several steps with only occasional pauses. Needs less prompting to continue compared to lower levels.",
+              4: "Easily comes up with many ideas or story elements in succession. Rarely gets stuck; imagination flows well as the student expands on details or plot without teacher intervention.",
+              5: "Continuously generates imaginative content with exceptional ease. Almost never runs out of ideas – often offering more possibilities than time permits – and seamlessly adapts or adds to the creative task."
+            },
+            "Student's View": {
+              1: "Feels stuck almost immediately during imaginative tasks. Often says, “I don’t know what to do next,” and stops unless someone suggests an idea.",
+              2: "Sometimes continues an imaginative idea briefly, but still runs out of new things to add quickly. Finds it challenging to keep a story or play scenario going for long.",
+              3: "Finds it easier to keep imagination going. Can continue a make-believe scenario or story with a handful of ideas in a row, though might pause occasionally to think what comes next.",
+              4: "Has little trouble thinking of new things to add. Can keep a story or game going with plenty of ideas, rarely getting bored or running out of material in mid-play.",
+              5: "Imagination flows effortlessly. Always has the next idea ready and can continue stories or fantasy play indefinitely. Never feels at a loss for what to imagine or do next."
+            },
+            "Parent's View": {
+              1: "Quickly runs out of ideas in pretend play, often ending play early or repeating the same action. Frequently says they’re bored or asks “What should I do now?” when playing imaginatively.",
+              2: "Can sustain pretend play for a short time before running out of ideas. May repeat a scenario a couple of times then stop, showing only limited continuity in play.",
+              3: "Engages in imaginative play for a moderate duration, coming up with several connected ideas or events. Occasionally needs a nudge or new prop to keep the storyline moving, but generally continues on their own.",
+              4: "Plays imaginatively for extended periods, smoothly moving from one idea to the next. The child can elaborate on pretend scenarios at length without adult help to generate new content.",
+              5: "Imaginative play is highly self-sustaining and prolific. The child keeps expanding their pretend world or project with new twists for a long time, rarely ever running out of steam."
+            },
+            "Donor's View": {
+              1: "Produces only minimal creative output (e.g., a one-line story or a basic drawing with no added details), indicating difficulty generating and extending ideas.",
+              2: "Creative outputs contain some ideas but remain brief or lacking detail. For example, the child might list only a few ideas when many were expected, reflecting modest imaginative fluency.",
+              3: "Outputs show a fair amount of detail and idea content. For instance, a story might have multiple events or an artwork several elements. Donors note the child can express a series of ideas, indicating growing fluency.",
+              4: "Creative work is rich and extensive. The child produces lengthy stories or projects with many components, demonstrating an abundant flow of ideas. Donors see the child’s high productivity in creative tasks as evidence of strong imaginative fluency.",
+              5: "The volume and complexity of the child’s imaginative output are exceptional. They present numerous ideas and rich details in their work without apparent effort. Donors recognize an outstanding level of idea fluency, highlighting the program’s success in fostering quick and flexible thinking."
+            }
+          }
+        },
+        "Goal-Directedness": {
+          definition: "Goal-Directedness (Purposefulness) is the extent to which a child’s imaginative activities are guided by goals or a narrative purpose, and the child’s ability to plan and follow through on imaginative ideas.",
+          perspectives: {
+            "Teacher's View": {
+              1: "Shows no clear purpose in imaginative activities. Play or creative work is haphazard and often left incomplete. The student doesn’t stick to any storyline or project long enough to reach a goal or conclusion.",
+              2: "Starts with a simple idea or theme but shows limited follow-through. May begin an imaginative task with some intent (e.g., “I’m drawing a rocket”) but often abandons or changes it before finishing; goals, if any, are short-lived.",
+              3: "Often has a basic goal or storyline in mind and sees it through to a simple conclusion. With occasional guidance, the student can outline a straightforward narrative or project and usually follow it to the end.",
+              4: "Frequently sets a clear goal for creative play or projects and works diligently toward it. The student tends to plan out their story or creation (for instance, outlining a beginning, middle, end) and mostly completes it, showing focus and purpose.",
+              5: "Consistently approaches imaginative endeavors with a specific purpose or vision and follows through independently. The student often outlines or maps out their imaginative project (story, play, art) and executes all steps to achieve their envisioned outcome, typically reaching a satisfying conclusion."
+            },
+            "Student's View": {
+              1: "Plays or creates without a plan, going moment-to-moment. Usually stops pretend play or storytelling without any particular outcome or resolution in mind.",
+              2: "Sometimes has a loose idea of what to do (e.g., says “Let’s pretend X”), but the plan isn’t well developed. Often drops the idea quickly or switches roles, with little sense of completing a story or task.",
+              3: "Often imagines with a simple goal in mind and tries to see it through. For example, the child might set up a pretend “adventure” and play until the mission (rescuing a toy, etc.) is accomplished.",
+              4: "Usually enters imaginative activities with a plan or desired outcome and sticks to it. Enjoys setting up scenarios that have an end goal (like a game with a victory condition or a story with a climax) and follows through to that endpoint.",
+              5: "Approaches pretend play and creative projects very purposefully. Likely to plan out stories or complex make-believe scenarios ahead of time and carry them out fully. Feels motivated to complete these imaginative projects and is proud upon reaching the intended goal."
+            },
+            "Parent's View": {
+              1: "Imaginative play appears aimless. The child has no apparent storyline or objective and often quits playing without accomplishing anything in the pretend scenario.",
+              2: "Shows a bit of direction in play (e.g., deciding roles like “you be the teacher”), but the play lacks a clear ending or sustained focus. Any purpose is basic and usually not carried through to a conclusion.",
+              3: "Frequently has a simple mission in pretend play (e.g., “find the hidden treasure” and then does so). The child more regularly follows through on these basic imaginative goals, though they remain fairly simple.",
+              4: "Often starts imaginative play or projects with a planned purpose and sees it through. For example, the child might declare an elaborate game idea and carry it out (creating a pretend “restaurant” game from setup to serving pretend food).",
+              5: "Initiates and executes imaginative ideas that have clear goals and multiple steps. The child plans out creative projects or extended pretend scenarios (like writing and performing a short play for the family) and follows through to the end, showing strong purpose and persistence."
+            },
+            "Donor's View": {
+              1: "Creative work lacks structure or completion. Projects often seem unfinished or without direction (e.g., a story that never develops an ending), indicating very low purposefulness at this stage.",
+              2: "Some hints of intended outcomes appear, but goals are not fully realized. For instance, a story or art project may start with a plan but then trail off. This reflects emerging but still weak goal-directedness in imaginative tasks.",
+              3: "Imaginative work usually reaches a basic completion or meets a simple goal. The child can carry an idea to a conclusion – for example, finishing a drawing or a short story with an ending – indicating moderate development of purposefulness.",
+              4: "Creative outputs are complete and show evidence of planning. The child undertakes projects with an objective in mind and delivers a finished product (e.g., a fully realized craft or story). Donors note strong follow-through, reflecting a high degree of goal-directed creativity.",
+              5: "Imaginative projects are clearly goal-driven and often ambitious, yet the child sees them through. They produce well-thought-out, complete creative works (stories, performances, inventions) as planned. Donors see an exceptional level of purposefulness, showcasing the program’s success in fostering self-directed, goal-oriented imagination."
+            }
+          }
+        },
+        "Complexity": {
+          definition: "Complexity (Elaboration & Innovation) is the richness and intricacy of a child’s imagination, including the level of detail (elaboration) in their creative ideas and the originality (innovation) of the concepts they devise.",
+          perspectives: {
+            "Teacher's View": {
+              1: "Imaginative output is very simple and bare-bones. Stories or drawings contain only one or two basic elements with no added detail or originality. Pretend play is one-dimensional, sticking to a single idea without expansion.",
+              2: "Imagination shows a few extra details or slight novel touches, but remains fairly basic. The student may add one or two details to a story or picture (e.g., a simple description or an extra character), yet the overall idea is still straightforward and familiar.",
+              3: "Creates moderately detailed and somewhat original imaginative work. Stories include multiple events or characters, and drawings have some background or embellishments. Occasionally combines ideas (like a mash-up of two known tales) or adds a creative twist, showing a growing level of elaboration and innovation.",
+              4: "Produces detailed and creative imaginative works. Stories are rich with description, multiple characters, and perhaps subplots or imaginative twists. Artwork is filled with details and inventive elements. The student often introduces original ideas that go beyond the obvious, demonstrating high elaboration and emerging innovation.",
+              5: "Imaginative creations are highly elaborate and exceptionally innovative. The student crafts intricate stories or fantasies with layered plots, well-developed characters, and plentiful detail – often including completely original concepts. They seamlessly integrate various imaginative ideas in novel ways, showing a level of complexity well beyond their years."
+            },
+            "Student's View": {
+              1: "Sticks to extremely simple make-believe scenarios or drawings. Uses one idea at a time without any extra details or creative twists. Imagination is basic and straightforward.",
+              2: "Begins to add small details or variations to imaginative play. For example, might include a minor new element (“and the castle has a dragon”) but not develop it much. Ideas are still mostly conventional, with modest elaboration.",
+              3: "Tries to enrich imaginative ideas with some details or creative twists. May add description to a story or complexity to a game (e.g., multiple characters with names). Is proud to include a few unique elements beyond a basic narrative.",
+              4: "Enjoys making imaginative play or projects detailed and interesting. Often fleshes out stories with vivid settings or complex roles and introduces clever twists. Sees their creations as unique or “different,” putting effort into making them stand out.",
+              5: "Thrives on complexity and originality in imagination. Loves devising intricate pretend worlds or lengthy stories with many parts. Deliberately adds unique features or surprising plot elements, and enjoys managing a rich, multifaceted imaginative project from start to finish."
+            },
+            "Parent's View": {
+              1: "Imaginative play or creations are extremely simple. The child might draw a basic picture with no background or tell a very short, plain story. Play themes are predictable and not elaborated.",
+              2: "Sometimes adds a little extra to creative play or art beyond the basics. The child may decorate a drawing with a couple of additional items or introduce a new rule in pretend play, but the imagination remains relatively plain and expected.",
+              3: "Imaginative activities are becoming more elaborate. The child might act out a story with several scenes or draw a picture with a background and various elements. Parents notice some creative twists or original ideas (like mixing characters from different stories) that make play more interesting.",
+              4: "Frequently elaborates on pretend scenarios with rich detail and inventiveness. The child might create an extended storyline for their toys or add imaginative modifications to a standard game, making their play quite unique. Family is often impressed by the level of creativity and detail in these activities.",
+              5: "Creates extraordinarily elaborate and original imaginative play or products. The child might develop an entire imaginary universe with detailed lore, or consistently come up with ideas far outside usual themes. Their play and creative work are remarkably complex and inventive, often surprising adults with sophistication."
+            },
+            "Donor's View": {
+              1: "Creative work is minimalistic and generic. A donor observing would see very basic drawings or stories with almost no detail or novel elements, indicating the lowest level of elaboration and innovation.",
+              2: "Outputs contain a bit more detail or a small creative idea beyond the basics. A story might have an extra sentence of description or a drawing a few background elements. There is slight innovation, but the work is still simple and typical for the age.",
+              3: "Work shows moderate detail and a touch of originality. The child’s story might have a beginning, middle, and end with a little surprise, or their art includes imaginative elements. Donors see that the child’s creations are more detailed and creative than basic ones, reflecting a mid-level of elaboration and innovation.",
+              4: "Creative outputs are detailed and contain clearly original ideas. A story might have multiple scenes and an unexpected ending, or an art project combines elements in an unusual way. This level of complexity and creativity signals strong imaginative development to outside observers.",
+              5: "Imaginative output is richly detailed, complex, and highly innovative. The child produces work that is far beyond simplistic age norms – for example, a multi-chapter story or an inventive design no one’s seen before. Donors recognize this exceptional elaboration and creativity as clear evidence of advanced imaginative ability fostered by the program."
+            }
+          }
+        }
+      }
+    };
+
+    // Fade out then update content for level change
+    function showLevel(level) {
+      const contentDiv = document.getElementById("content");
+      contentDiv.style.opacity = 0;
+      setTimeout(() => {
+        document.querySelectorAll(".level-btn").forEach((btn, index) => {
+          btn.classList.toggle("active", index + 1 === level);
+        });
+        contentDiv.innerHTML = "";
+        // Level description section
+        const levelDescDiv = document.createElement("div");
+        levelDescDiv.className = "level-description";
+        levelDescDiv.innerHTML = `
+          <div class="level-title">Level ${level}</div>
+          <div>${frameworkData.levelDescriptions[level]}</div>
+        `;
+        contentDiv.appendChild(levelDescDiv);
+        // Overall perspectives section
+        const overallSection = document.createElement("div");
+        overallSection.className = "overall-section";
+        overallSection.innerHTML = `<div class="section-title">Overall Perspectives</div>`;
+        Object.entries(frameworkData.overall).forEach(([perspectiveName, perspectiveData]) => {
+          const perspectiveDiv = document.createElement("div");
+          perspectiveDiv.className = "perspective";
+          perspectiveDiv.innerHTML = `
+            <div class="perspective-title">${perspectiveName}</div>
+            <div>${perspectiveData[level]}</div>
+          `;
+          overallSection.appendChild(perspectiveDiv);
+        });
+        contentDiv.appendChild(overallSection);
+        // Dimensions: two cards per row
+        const dimensionsContainer = document.createElement("div");
+        dimensionsContainer.className = "dimensions-container";
+        Object.entries(frameworkData.dimensions).forEach(([dimensionName, dimensionData]) => {
+          const dimensionSection = document.createElement("div");
+          dimensionSection.className = "dimension-section";
+          dimensionSection.style.backgroundColor = dimensionColors[dimensionName] || "#fff";
+          dimensionSection.innerHTML = `
+            <div class="dimension-title">${dimensionName}</div>
+            <div class="dimension-definition">${dimensionData.definition}</div>
+          `;
+          Object.entries(dimensionData.perspectives).forEach(([perspectiveName, perspectiveData]) => {
+            const acc = document.createElement("div");
+            acc.className = "accordion";
+            const header = document.createElement("div");
+            header.className = "accordion-header";
+            header.textContent = perspectiveName;
+            // Set header background to our mapping (if available)
+            header.style.backgroundColor = perspectiveColors[perspectiveName] || "#eee";
+            // Remove border to be boardless
+            header.style.border = "none";
+            const accContent = document.createElement("div");
+            accContent.className = "accordion-content";
+            accContent.innerHTML = perspectiveData[level];
+            acc.appendChild(header);
+            acc.appendChild(accContent);
+            header.addEventListener("click", () => {
+              acc.classList.toggle("active");
+            });
+            dimensionSection.appendChild(acc);
+          });
+          dimensionsContainer.appendChild(dimensionSection);
+        });
+        contentDiv.appendChild(dimensionsContainer);
+        contentDiv.style.opacity = 1;
+      }, 300);
+    }
+
+    // Create level buttons dynamically
+    function createLevelButtons() {
+      const selector = document.getElementById("levelSelector");
+      for (let i = 1; i <= 5; i++) {
+        const button = document.createElement("button");
+        button.className = "level-btn";
+        button.textContent = `Level ${i}`;
+        button.onclick = () => showLevel(i);
+        selector.appendChild(button);
+      }
+    }
+
+    // Initialize page
+    document.addEventListener("DOMContentLoaded", () => {
+      createLevelButtons();
+      showLevel(1);
+    });
+  </script>
+</body>
+</html>
